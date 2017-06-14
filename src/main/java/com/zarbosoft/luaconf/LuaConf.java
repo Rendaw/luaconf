@@ -244,7 +244,8 @@ public class LuaConf {
 						));
 					}
 				}
-			/*case TFUNCTION:*/
+				case TFUNCTION:
+					return new Step(new InterfaceOtherEvent(value), null);
 				default:
 					throw new InvalidStream(path, String.format("Unknown data type [%s].", TYPE_NAMES[value.type()]));
 			}
