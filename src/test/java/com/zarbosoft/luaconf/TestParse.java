@@ -2,6 +2,7 @@ package com.zarbosoft.luaconf;
 
 import com.google.common.collect.ImmutableList;
 import com.zarbosoft.interface1.Configuration;
+import com.zarbosoft.interface1.Walk;
 import org.junit.Test;
 import org.reflections.Reflections;
 
@@ -29,8 +30,9 @@ public class TestParse {
 
 	@Test
 	public void testAll() {
-		final AllRoot got = LuaConf.parse(new Reflections("com.zarbosoft.luaconf"),
-				AllRoot.class,
+		final AllRoot got = LuaConf.parse(
+				new Reflections("com.zarbosoft.luaconf"),
+				new Walk.TypeInfo(AllRoot.class),
 				"return {a = 1, b = 'string', c = {1, 2, 3}};"
 		);
 		final AllRoot expected = new AllRoot();
@@ -59,9 +61,9 @@ public class TestParse {
 
 	@Test
 	public void testTypes() {
-		final List<Types.Base> got = LuaConf.parse(new Reflections("com.zarbosoft.luaconf"),
-				List.class,
-				Types.Base.class,
+		final List<Types.Base> got = LuaConf.parse(
+				new Reflections("com.zarbosoft.luaconf"),
+				new Walk.TypeInfo(List.class, new Walk.TypeInfo(Types.Base.class)),
 				"return {a {}, b {}};"
 		);
 		final List<Types.Base> expected = ImmutableList.of(new Types.A(), new Types.B());

@@ -17,7 +17,6 @@ import org.reflections.Reflections;
 
 import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -28,44 +27,18 @@ import static com.zarbosoft.rendaw.common.Common.uncheck;
 import static org.luaj.vm2.LuaValue.*;
 
 public class LuaConf {
-	public static <T> T parse(final Reflections reflections, final Class<T> rootClass, final String data) {
-		return parse(reflections,
-				new Walk.TypeInfo(rootClass),
-				"",
-				globals -> globals.load(new StringReader(data), "text")
-		);
+	public static <T> T parse(
+			final Reflections reflections, final Walk.TypeInfo rootType, final String data
+	) {
+		return parse(reflections, rootType, "", globals -> globals.load(new StringReader(data), "text"));
 	}
 
 	public static <T> T parse(
-			final Reflections reflections, final Type rootClass, final Type rootParameter, final String data
-	) {
-		return parse(reflections,
-				new Walk.TypeInfo(rootClass, rootParameter),
-				"",
-				globals -> globals.load(new StringReader(data), "text")
-		);
-	}
-
-	public static <T> T parse(final Reflections reflections, final Class<T> rootClass, final Path path) {
-		if (!Files.exists(path))
-			throw new InvalidStream(path, "File does not exist.");
-		return parse(reflections,
-				new Walk.TypeInfo(rootClass),
-				path.toString(),
-				globals -> globals.loadfile(path.toString())
-		);
-	}
-
-	public static <T> T parse(
-			final Reflections reflections, final Type rootClass, final Type rootParameter, final Path path
+			final Reflections reflections, final Walk.TypeInfo rootType, final Path path
 	) {
 		if (!Files.exists(path))
 			throw new InvalidStream(path, "File does not exist.");
-		return parse(reflections,
-				new Walk.TypeInfo(rootClass, rootParameter),
-				path.toString(),
-				globals -> globals.loadfile(path.toString())
-		);
+		return parse(reflections, rootType, path.toString(), globals -> globals.loadfile(path.toString()));
 	}
 
 	public static <T> T parse(
