@@ -22,15 +22,14 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.zarbosoft.rendaw.common.Common.stream;
-import static com.zarbosoft.rendaw.common.Common.uncheck;
+import static com.zarbosoft.rendaw.common.Common.*;
 import static org.luaj.vm2.LuaValue.*;
 
 public class LuaConf {
 	public static <T> T parse(
 			final Reflections reflections, final Walk.TypeInfo rootType, final String data
 	) {
-		return parse(reflections, rootType, "", globals -> globals.load(new StringReader(data), "text"));
+		return parse(reflections, rootType, "", workingDir(), globals -> globals.load(new StringReader(data), "text"));
 	}
 
 	public static <T> T parse(
@@ -38,17 +37,24 @@ public class LuaConf {
 	) {
 		if (!Files.exists(path))
 			throw new InvalidStream(path, "File does not exist.");
-		return parse(reflections, rootType, path.toString(), globals -> globals.loadfile(path.toString()));
+		return parse(reflections,
+				rootType,
+				path.toString(),
+				path.getParent(),
+				globals -> globals.loadfile(path.toString())
+		);
 	}
 
 	public static <T> T parse(
 			final Reflections reflections,
 			final Walk.TypeInfo typeInfo,
 			final String rootPath,
+			final Path rootPathParent,
 			final Function<Globals, LuaValue> loader
 	) {
 		return uncheck(() -> {
 			final Globals globals = JsePlatform.standardGlobals();
+			globals.get("package").set("path", rootPathParent.resolve("?.lua").toString());
 			Walk.walk(reflections, typeInfo, new Walk.DefaultVisitor<Boolean>() {
 				@Override
 				public Boolean visitAbstract(
